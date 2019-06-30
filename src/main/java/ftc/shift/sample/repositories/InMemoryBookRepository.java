@@ -1,5 +1,6 @@
 package ftc.shift.sample.repositories;
 
+import ftc.shift.sample.exception.NotFoundException;
 import ftc.shift.sample.models.Book;
 import org.springframework.stereotype.Repository;
 
@@ -13,41 +14,103 @@ import java.util.Map;
  */
 @Repository
 public class InMemoryBookRepository implements BookRepository {
+  /**
+   * Ключ - имя пользователя, значение - все книги, которые есть у пользователя
+   */
+  private Map<String, Map<String, Book>> bookCache = new HashMap<>();
 
-    private Map<String, Book> bookCache = new HashMap<>();
+  public InMemoryBookRepository() {
+    // Заполним репозиторий тестовыми данными
+    // В тестовых данных существует всего 3 пользователя: UserA / UserB / UserC
 
-    public InMemoryBookRepository() {
-        bookCache.put("1", new Book("1", "Название 1", "Автор Авторович", 12,
-                false, Collections.singletonList("Фантастика")));
-        bookCache.put("2", new Book("2", "Название 2", "Автор Писателевич", 1000,
-                true, Collections.singletonList("Детектив")));
+    bookCache.put("UserA", new HashMap<>());
+    bookCache.get("UserA").put("1", new Book("1", "Название 1", "Автор Авторович", 12,
+            Collections.singletonList("Фантастика")));
+    bookCache.get("UserA").put("2", new Book("2", "Название 2", "Автор Писателевич", 48,
+            Collections.singletonList("Детектив")));
+
+    bookCache.put("UserB", new HashMap<>());
+    bookCache.get("UserB").put("3", new Book("3", "Название 3", "Писатель Авторович", 24,
+            Collections.singletonList("Киберпанк")));
+
+    bookCache.put("UserC", new HashMap<>());
+  }
+
+  @Override
+  public Book fetchBook(String userId, String bookId) {
+    if (!bookCache.containsKey(userId)) {
+      // Пользователь не найден
+      throw new NotFoundException();
     }
 
-    @Override
-    public Book fetchBook(String id) {
-        return bookCache.get(id);
+    Map<String, Book> userBooks = bookCache.get(userId);
+
+    if (!userBooks.containsKey(bookId)) {
+      // У пользователя не найдена книга
+      throw new NotFoundException();
     }
 
-    @Override
-    public Book updateBook(Book book) {
-        bookCache.put(book.getId(), book);
-        return book;
+    return userBooks.get(bookId);
+  }
+
+  @Override
+  public Book updateBook(String userId, String bookId, Book book) {
+    if (!bookCache.containsKey(userId)) {
+      // Пользователь не найден
+      throw new NotFoundException();
     }
 
-    @Override
-    public void deleteBook(String id) {
-        bookCache.remove(id);
+    Map<String, Book> userBooks = bookCache.get(userId);
+
+    if (!userBooks.containsKey(bookId)) {
+      // У пользователя не найдена книга
+      throw new NotFoundException();
     }
 
-    @Override
-    public Book createBook(Book book) {
-        book.setId(String.valueOf(System.currentTimeMillis()));  //очень плохой способ генерировать Id, тут только для примера
-        bookCache.put(book.getId(), book);
-        return book;
+    book.setId(bookId);
+    userBooks.put(bookId, book);
+    return book;
+  }
+
+  @Override
+  public void deleteBook(String userId, String bookId) {
+    if (!bookCache.containsKey(userId)) {
+      // Пользователь не найден
+      throw new NotFoundException();
     }
 
-    @Override
-    public Collection<Book> getAllBooks() {
-        return bookCache.values();
+    Map<String, Book> userBooks = bookCache.get(userId);
+
+    if (!userBooks.containsKey(bookId)) {
+      // У пользователя не найдена книга
+      throw new NotFoundException();
     }
+
+    bookCache.remove(bookId);
+  }
+
+  @Override
+  public Book createBook(String userId, Book book) {
+    if (!bookCache.containsKey(userId)) {
+      // Пользователь не найден
+      throw new NotFoundException();
+    }
+
+    Map<String, Book> userBooks = bookCache.get(userId);
+
+    // Плохой способ генерирования случайных идентификаторов, использовать только для примеров
+    book.setId(String.valueOf(System.currentTimeMillis()));
+    userBooks.put(book.getId(), book);
+    return book;
+  }
+
+  @Override
+  public Collection<Book> getAllBooks(String userId) {
+    if (!bookCache.containsKey(userId)) {
+      // Пользователь не найден
+      throw new NotFoundException();
+    }
+
+    return bookCache.get(userId).values();
+  }
 }

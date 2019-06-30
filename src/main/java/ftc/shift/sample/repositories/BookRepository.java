@@ -9,13 +9,13 @@ import java.util.Collection;
  */
 public interface BookRepository {
 
-    Book fetchBook(String id);
+  Book fetchBook(String userId, String bookId);
 
-    Book updateBook(Book book);
+  Book updateBook(String userId, String bookId, Book book);
 
-    void deleteBook(String id);
+  void deleteBook(String userId, String bookId);
 
-    Book createBook(Book book);
+  Book createBook(String userId, Book book);
 
-    Collection<Book> getAllBooks();
+  Collection<Book> getAllBooks(String userId);
 }

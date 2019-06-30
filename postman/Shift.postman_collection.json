@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "fa61581f-1e2a-401d-83cc-a3301344b30e",
+		"_postman_id": "feb578d7-5487-4b2d-a9b1-f78cd1805bd5",
 		"name": "Shift",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -9,8 +9,13 @@
 			"name": "/api/v001/books/",
 			"request": {
 				"method": "GET",
-				"header": [],
-				"body": {},
+				"header": [
+					{
+						"key": "userId",
+						"value": "UserA",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:8081/api/v001/books/",
 					"protocol": "http",
@@ -33,10 +38,15 @@
 			"name": "/api/v001/books/{id}",
 			"request": {
 				"method": "GET",
-				"header": [],
-				"body": {},
+				"header": [
+					{
+						"key": "userId",
+						"value": "UserA",
+						"type": "text"
+					}
+				],
 				"url": {
-					"raw": "http://localhost:8081/api/v001/books/1",
+					"raw": "http://localhost:8081/api/v001/books/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -46,7 +56,7 @@
 						"api",
 						"v001",
 						"books",
-						"1"
+						"2"
 					]
 				},
 				"description": "Получение книги по id"
@@ -60,15 +70,21 @@
 				"header": [
 					{
 						"key": "Content-Type",
-						"value": "application/json"
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "userId",
+						"value": "UserA",
+						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"id\": \"1\",\n    \"name\": \"Название 123234234234\",\n    \"author\": \"Автор Авторович\",\n    \"pages\": 12,\n    \"isAvailable\": false,\n    \"genre\": [\n        \"Фантастика\",\n        \"Новый жанр\"\n    ]\n}"
+					"raw": "{\n    \"name\": \"Новое название\",\n    \"author\": \"И автор новый\",\n    \"pages\": 12,\n    \"isAvailable\": false,\n    \"genre\": [\n        \"Фантастика\",\n        \"Да и жанры изменились\"\n    ]\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8081/api/v001/books/1",
+					"raw": "http://localhost:8081/api/v001/books/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -78,7 +94,7 @@
 						"api",
 						"v001",
 						"books",
-						"1"
+						"2"
 					]
 				},
 				"description": "Обновление данных книги по id"
@@ -92,7 +108,13 @@
 				"header": [
 					{
 						"key": "Content-Type",
-						"value": "application/json"
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "userId",
+						"value": "UserA",
+						"type": "text"
 					}
 				],
 				"body": {
@@ -124,7 +146,13 @@
 				"header": [
 					{
 						"key": "Content-Type",
-						"value": "application/json"
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "userId",
+						"value": "UserA",
+						"type": "text"
 					}
 				],
 				"body": {

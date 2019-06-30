@@ -1,73 +1,73 @@
 package ftc.shift.sample.models;
 
-import java.io.Serializable;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.List;
 
-public class Book implements Serializable {
-    private String id;
-    private String name;
-    private String author;
-    private Integer pages;
-    private Boolean isAvailable;
-    private List<String> genre;
+public class Book {
+  @ApiModelProperty(value = "Уникальный идентификатор книги", required = true)
+  private String id;
 
-    public Book() {
-    }
+  @ApiModelProperty(value = "Название книги", required = true)
+  private String name;
 
-    public Book(String id, String name, String author, Integer pages, Boolean isAvailable, List<String> genre) {
-        this.id = id;
-        this.name = name;
-        this.author = author;
-        this.pages = pages;
-        this.isAvailable = isAvailable;
-        this.genre = genre;
-    }
+  @ApiModelProperty(value = "Автор", required = true)
+  private String author;
 
-    public String getId() {
-        return id;
-    }
+  @ApiModelProperty(value = "Количество страниц", required = true)
+  private Integer pages;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  @ApiModelProperty(value = "Список жанров", required = true)
+  private List<String> genre;
 
-    public String getName() {
-        return name;
-    }
+  public Book() {
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public Book(String id, String name, String author, Integer pages, List<String> genre) {
+    this.id = id;
+    this.name = name;
+    this.author = author;
+    this.pages = pages;
+    this.genre = genre;
+  }
 
-    public String getAuthor() {
-        return author;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public Integer getPages() {
-        return pages;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setPages(Integer pages) {
-        this.pages = pages;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Boolean getAvailable() {
-        return isAvailable;
-    }
+  public String getAuthor() {
+    return author;
+  }
 
-    public void setAvailable(Boolean available) {
-        isAvailable = available;
-    }
+  public void setAuthor(String author) {
+    this.author = author;
+  }
 
-    public List<String> getGenre() {
-        return genre;
-    }
+  public Integer getPages() {
+    return pages;
+  }
 
-    public void setGenre(List<String> genre) {
-        this.genre = genre;
-    }
+  public void setPages(Integer pages) {
+    this.pages = pages;
+  }
+
+  public List<String> getGenre() {
+    return genre;
+  }
+
+  public void setGenre(List<String> genre) {
+    this.genre = genre;
+  }
 }
