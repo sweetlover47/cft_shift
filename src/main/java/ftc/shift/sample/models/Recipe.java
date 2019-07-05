@@ -1,81 +1,83 @@
 package ftc.shift.sample.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
+import java.util.Map;
 
-public class Recipe {
-  @ApiModelProperty(value = "Уникальный идентификатор рецепта", required = true)
-  private String id;
+public class Recipe extends ShortRecipe {
+    @ApiModelProperty(value = "Телефон создателя", required = true)
+    private String creator;
 
-  @ApiModelProperty(value = "Название рецепта", required = true)
-  private String title;
+    @ApiModelProperty(value = "Ингредиенты рецепта", required = true)
+    private List<String> ingredients;
 
-  @ApiModelProperty(value = "Телефон создателя", required = true)
-  private String creator;
+    @ApiModelProperty(value = "Участники рецепта", required = true)
+    private List<User> members;
 
-  @ApiModelProperty(value = "Описание рецепта", required = true)
-  private String description;
+    public Recipe() {
+    }
 
-  @ApiModelProperty(value = "Статус рецепта", required = true)
-  private int status;
+    public Recipe(String id, String title, String creator, String description, int status, List<String> ingredients, List<User> members) {
+        this.id = id;
+        this.title = title;
+        this.creator = creator;
+        this.description = description;
+        this.status = status;
+        this.ingredients = ingredients;
+        this.members = members;
+    }
 
-  @ApiModelProperty(value = "Ингредиенты рецепта", required = true)
-  private List<String> ingredients;
+    public String getId() {
+        return id;
+    }
 
-  public Recipe() {
-  }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-  public Recipe(String id, String title, String creator, String description, int status, List<String> ingredients) {
-    this.id = id;
-    this.title = title;
-    this.creator = creator;
-    this.description = description;
-    this.status = status;
-    this.ingredients = ingredients;
-  }
+    public String getTitle() {
+        return title;
+    }
 
-  public String getId() {
-    return id;
-  }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-  public void setId(String id) {
-    this.id = id;
-  }
+    public String getCreator() {
+        return creator;
+    }
 
-  public String getTitle() {
-    return title;
-  }
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
+    public String getDescription() {
+        return description;
+    }
 
-  public String getCreator() {
-    return creator;
-  }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-  public void setCreator(String creator) {
-    this.creator = creator;
-  }
+    public List<String> getIngredients() {
+        return ingredients;
+    }
 
-  public String getDescription() {
-    return description;
-  }
+    public void setIngredients(List<String> ingredients) {
+        this.ingredients = ingredients;
+    }
 
-  public void setDescription(String description) {
-    this.description = description;
-  }
+    public int getStatus() { return status; }
 
-  public List<String> getIngredients() {
-    return ingredients;
-  }
+    public void setStatus(int status) { this.status = status; }
 
-  public void setIngredients(List<String> ingredients) {
-    this.ingredients = ingredients;
-  }
+    public List<User> getMembers() {
+        return members;
+    }
 
-  public int getStatus() { return status; }
-
-  public void setStatus(int status) { this.status = status; }
+    public void setMembers(List<User> members) {
+        this.members = members;
+    }
 }

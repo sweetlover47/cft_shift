@@ -175,6 +175,44 @@
 				"description": "Создание новой записи"
 			},
 			"response": []
+		},
+		{
+			"name": "/api/v001/recipe/{id}",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "userId",
+						"value": "User1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v001/recipe/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v001",
+						"recipe",
+						"1"
+					]
+				},
+				"description": "Стать участником рецепта"
+			},
+			"response": []
 		}
 	]
 }
