@@ -8,24 +8,24 @@ import java.util.Map;
 
 public class Recipe extends ShortRecipe {
     @ApiModelProperty(value = "Телефон создателя", required = true)
-    private String creator;
+    private User creator;
 
-    @ApiModelProperty(value = "Ингредиенты рецепта", required = true)
+ /*   @ApiModelProperty(value = "Ингредиенты рецепта", required = true)
     private List<String> ingredients;
-
+*/
     @ApiModelProperty(value = "Участники рецепта", required = true)
     private List<User> members;
 
     public Recipe() {
     }
 
-    public Recipe(String id, String title, String creator, String description, int status, List<String> ingredients, List<User> members) {
+    public Recipe(String id, String title, User creator, String description, int status,/* List<String> ingredients,*/ List<User> members) {
         this.id = id;
         this.title = title;
         this.creator = creator;
         this.description = description;
         this.status = status;
-        this.ingredients = ingredients;
+       /* this.ingredients = ingredients;*/
         this.members = members;
     }
 
@@ -45,11 +45,11 @@ public class Recipe extends ShortRecipe {
         this.title = title;
     }
 
-    public String getCreator() {
+    public User getCreator() {
         return creator;
     }
 
-    public void setCreator(String creator) {
+    public void setCreator(User creator) {
         this.creator = creator;
     }
 
@@ -60,7 +60,7 @@ public class Recipe extends ShortRecipe {
     public void setDescription(String description) {
         this.description = description;
     }
-
+/*
     public List<String> getIngredients() {
         return ingredients;
     }
@@ -68,7 +68,7 @@ public class Recipe extends ShortRecipe {
     public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
     }
-
+*/
     public int getStatus() { return status; }
 
     public void setStatus(int status) { this.status = status; }

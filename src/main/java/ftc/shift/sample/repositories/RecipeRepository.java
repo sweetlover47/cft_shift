@@ -14,7 +14,6 @@ public interface RecipeRepository {
 
   Recipe fetchRecipe(String userId, String bookId);
 
-
   void deleteRecipe(String userId, String bookId);
 
   Recipe createRecipe(String userId, Recipe recipe);

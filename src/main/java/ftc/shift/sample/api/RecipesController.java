@@ -37,7 +37,7 @@ public class RecipesController {
             @ApiParam(value = "Данные для нового рецепта (ID, название, телефон создателя, описание, ингредиенты)")
             @RequestBody Recipe recipe) {
         Recipe result = service.createRecipe(userId, recipe);
-        return ResponseEntity.ok(result);   /* Возможно, не надо ничего возвращать ?????????? */
+        return ResponseEntity.ok(result);   /* Возможно, не надо ничего возвращать */
     }
 
     @GetMapping(RECIPE_PATH + "/{recipeId}")     /* Получение конкретного рецепта (переход на страницу рецепта) */
@@ -83,4 +83,5 @@ public class RecipesController {
         Collection<ShortRecipe> recipes = service.provideRecipes(userId);
         return ResponseEntity.ok(recipes);
     }
+
 }

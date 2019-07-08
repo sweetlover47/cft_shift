@@ -28,18 +28,11 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         // Заполним репозиторий тестовыми данными
         // В тестовых данных существует всего 3 пользователя: UserA / UserB / UserC
 
-        bookCache.put(new User("User1", new ArrayList<Recipe>()), new HashMap<>());
-    /*bookCache.get("User1").put("1", new Recipe("1", "Борщ", "User1", "Великолепный и вкусный суп", 1,
-            Collections.singletonList("Фантастика")));
-    recipeCreatorMap.put("1", "User1");*/
-    /*bookCache.get("UserA").put("2", new Recipe("2", "Название 2", "Автор Писателевич", 48,
-            Collections.singletonList("Детектив"))); */                                       /* Collections.singletonList создает массив данных в JSON */
-
-        bookCache.put(new User("User2", new ArrayList<Recipe>()), new HashMap<>());
-    /*bookCache.get("UserB").put("3", new Recipe("3", "Название 3", "Писатель Авторович", 24,
-            Collections.singletonList("Киберпанк")));*/
-
-        bookCache.put(new User("User3", new ArrayList<Recipe>()), new HashMap<>());
+        bookCache.put(new User("User1", "89990112554"), new HashMap<>());
+        /*Recipe recipe = new Recipe("1", "Борщ", "UserA", "Великолепный и вкусный суп", 1, *//*new ArrayList<String>(),*//* new ArrayList<>());
+        this.createRecipe("User1", recipe);*/
+        bookCache.put(new User("User2", "84561112545"), new HashMap<>());
+        bookCache.put(new User("User3", "89083271800"), new HashMap<>());
     }
 
     @Override
@@ -70,12 +63,11 @@ public class InMemoryRecipeRepository implements RecipeRepository {
             throw new NotFoundException();
         }
         User user = (User) filtered.toArray()[0];
-
-
         String creatorId = getCreatorId(recipeId);
         Recipe recipe = fetchRecipe(creatorId, recipeId);                   /* Нужно найти тот рецепт, на котором мы сейчас находимся */
         List<User> memberList = recipe.getMembers();
-        memberList.add(user);
+        if (!memberList.contains(user))
+            memberList.add(user);
         recipe.setMembers(memberList);
         ArrayList<String> ar = new ArrayList<>();
         for (User elem : memberList)
