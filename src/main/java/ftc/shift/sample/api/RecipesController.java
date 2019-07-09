@@ -34,10 +34,10 @@ public class RecipesController {
     public ResponseEntity<Recipe> createRecipe(
             @ApiParam(value = "Идентификатор пользователя")
             @RequestHeader("userId") String userId,
-            @ApiParam(value = "Данные для нового рецепта (ID, название, телефон создателя, описание, ингредиенты)")
+            @ApiParam(value = "Данные для нового рецепта")
             @RequestBody Recipe recipe) {
         Recipe result = service.createRecipe(userId, recipe);
-        return ResponseEntity.ok(result);   /* Возможно, не надо ничего возвращать */
+        return ResponseEntity.ok(recipe);
     }
 
     @GetMapping(RECIPE_PATH + "/{recipeId}")     /* Получение конкретного рецепта (переход на страницу рецепта) */

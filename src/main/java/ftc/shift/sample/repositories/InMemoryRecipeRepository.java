@@ -24,9 +24,17 @@ public class InMemoryRecipeRepository implements RecipeRepository {
 
     public InMemoryRecipeRepository() {
         /* У каждого пользователя есть список его рецептов. У каждого рецепта есть id ( первое значение в HashMap ) и сам рецепт ( массив строк ) */
-        recipeData.put(new User("Петя", "1"), new HashMap<>());
-        /*Recipe recipe = new Recipe("1", "Борщ", "UserA", "Великолепный и вкусный суп", 1, new ArrayList<String>(), new ArrayList<>());
-        this.createRecipe("User1", recipe);*/
+        User user = new User("UserA", "1");
+        recipeData.put(user, new HashMap<>());
+        List<Ingredient> list = new ArrayList<>();
+        list.add(new Ingredient("onion", "0", "2"));
+        list.add(new Ingredient("onion2", "0", "4"));
+        List<MemberIngredient> memberIngredients= new ArrayList<>();
+        memberIngredients.add(new MemberIngredient("onion", "1"));
+        Map<User, List<MemberIngredient>> map = new HashMap<>();
+        map.put(user, memberIngredients);
+        Recipe recipe = new Recipe("1", "qwe", user,"qweqweqwe",  "wait", list, map);
+        createRecipe("1", recipe);
         recipeData.put(new User("Вася", "2"), new HashMap<>());
         recipeData.put(new User("Катя", "3"), new HashMap<>());
     }
@@ -50,15 +58,27 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         String creatorId = getCreatorId(recipeId);
         Recipe recipe = fetchRecipe(creatorId, recipeId);                   /* Нужно найти тот рецепт, на котором мы сейчас находимся */
         Map<User, List<MemberIngredient>> memberList = recipe.getMembers();
+        boolean answer = memberList.containsKey(user) && memberList.get(user).stream()
+                .anyMatch(us -> us.getName().equals(memberIngredient.getName()));
         if (!memberList.containsKey(user)) {
             List<MemberIngredient> ingredientList = new ArrayList<>();
             ingredientList.add(memberIngredient);
             memberList.put(user, ingredientList);
         }
-        else if (memberList.containsKey(user) && !memberList.get(user).contains(memberIngredient)) {
+        else if (memberList.containsKey(user) && !answer) {
             List<MemberIngredient> ingredientList = new ArrayList<>();
             ingredientList.add(memberIngredient);
             memberList.put(user, ingredientList);
+        }
+        else {
+            MemberIngredient ingredient = memberList.get(user).stream()
+                    .filter(us -> us.getName().equals(memberIngredient.getName()))
+                    .findAny()
+                    .orElseThrow(NotFoundException::new);
+            Integer value = Integer.valueOf(ingredient.getCount()) + Integer.valueOf(memberIngredient.getCount());
+            ingredient.setCount(Integer.toString(value));
+            List<MemberIngredient> list = memberList.get(user);
+            memberList.replace(user, list);
         }
         recipe.setMembers(memberList);
         Map<User, List<MemberIngredient>> ar = new HashMap<>();
@@ -89,7 +109,8 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     public Recipe createRecipe(String userId, Recipe recipe) {  /* Добавление нового рецепта (complete) */
         User user = fetchUserByUserId(userId);
         Map<String, Recipe> userBooks = recipeData.get(user);
-        recipe.setMembers(new HashMap<>());
+        if (recipe.getMembers() == null)
+            recipe.setMembers(new HashMap<>());
         recipe.setId(Integer.toString(countRecipes.getAndIncrement()));
         userBooks.put(recipe.getId(), recipe);
         recipeCreatorMap.put(recipe.getId(), userId);
