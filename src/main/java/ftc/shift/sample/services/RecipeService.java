@@ -1,40 +1,74 @@
 package ftc.shift.sample.services;
 
-import ftc.shift.sample.models.Recipe;
-import ftc.shift.sample.models.ShortRecipe;
-import ftc.shift.sample.models.User;
+import ftc.shift.sample.models.*;
 import ftc.shift.sample.repositories.RecipeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class RecipeService {
 
-  private final RecipeRepository recipeRepository;
+    private final RecipeRepository recipeRepository;
 
-  @Autowired
-  public RecipeService(RecipeRepository recipeRepository) {
-    this.recipeRepository = recipeRepository;
-  }
+    @Autowired
+    public RecipeService(RecipeRepository recipeRepository) {
+        this.recipeRepository = recipeRepository;
+    }
 
-  public Recipe provideRecipe(String userId, String recipeId) { return recipeRepository.fetchRecipe(userId, recipeId); }
+    public Recipe provideRecipe(String userId, String recipeId) {
+        return recipeRepository.fetchRecipe(userId, recipeId);
+    }
 
-  public void deleteRecipe(String userId, String recipeId) {
-    recipeRepository.deleteRecipe(userId, recipeId);
-  }
+    public void deleteRecipe(String userId, String recipeId) {
+        recipeRepository.deleteRecipe(userId, recipeId);
+    }
 
-  public Recipe createRecipe(String userId, Recipe recipe) {
-    return recipeRepository.createRecipe(userId, recipe);
-  }
+    public Recipe createRecipe(String userId, Recipe recipe) {
+        return recipeRepository.createRecipe(userId, recipe);
+    }
 
-  public Collection<ShortRecipe> provideRecipes(String userId) {
-    return recipeRepository.getAllRecipes(userId);
-  }
+    public Collection<ShortRecipe> provideRecipes(String userId) {
+        return recipeRepository.getAllShortRecipes();
+    }
 
-  public String getCreatorId(String recipeId) { return recipeRepository.getCreatorId(recipeId); }
+    public String getCreatorId(String recipeId) {
+        return recipeRepository.getCreatorId(recipeId);
+    }
 
-  public List<String> addMemberToRecipe(String userId, String recipeId) { return recipeRepository.addMember(userId, recipeId); }
+    public Map<User, List<MemberIngredient>> addMemberToRecipe(String userId, String recipeId,MemberIngredient memberIngredient) {
+        return recipeRepository.addMember(userId, recipeId, memberIngredient);
+    }
+
+    public List<ShortRecipe> findRecipesByTitle(String title) {
+        Collection<ShortRecipe> allRecipes = recipeRepository.getAllShortRecipes();
+        List<ShortRecipe> findedRecipes = new LinkedList<>();
+
+        for (ShortRecipe recipe : allRecipes) {
+            // если подстрока title присутствует в назавние рецепта, добавить в список
+            if (recipe.getTitle().lastIndexOf(title) != -1) {
+                findedRecipes.add(recipe);
+            }
+        }
+
+        return findedRecipes;
+    }
+
+    public List<ShortRecipe> findRecipesByIngredient(String title) {
+        Collection<Recipe> allRecipes = recipeRepository.getAllRecipes();
+        List<ShortRecipe> findedRecipes = new LinkedList<>();
+
+        // need add logic!
+        for (Recipe recipe : allRecipes) {
+
+
+            findedRecipes.add(recipe);
+        }
+
+        return findedRecipes;
+    }
 }

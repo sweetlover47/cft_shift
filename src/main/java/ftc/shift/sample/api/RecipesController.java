@@ -1,9 +1,7 @@
 package ftc.shift.sample.api;
 
 
-import ftc.shift.sample.models.Recipe;
-import ftc.shift.sample.models.ShortRecipe;
-import ftc.shift.sample.models.User;
+import ftc.shift.sample.models.*;
 import ftc.shift.sample.services.RecipeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -13,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Все аннотации, начинающиеся с @Api нужны только для построения <a href="http://localhost:8081/swagger-ui.html#/">swagger-документации</a>
@@ -55,12 +55,14 @@ public class RecipesController {
 
     @PutMapping(RECIPE_PATH + "/{recipeId}")   /* Добавление участника в список */
     @ApiOperation(value = "Добавление нового участника в список участников конкретного рецепта")
-    public ResponseEntity<List<String>> addMember(
+    public ResponseEntity<Map<User, List<MemberIngredient>>> addMember(
             @ApiParam(value = "Идентификатор пользователя")
             @RequestHeader("userId") String userId,
             @ApiParam(value = "Идентификатор рецепта")
-            @PathVariable String recipeId) {
-        List<String> members = service.addMemberToRecipe(userId, recipeId);
+            @PathVariable String recipeId,
+            @ApiParam(value = "Добавленный ингредиент")
+            @RequestBody MemberIngredient memberIngredient) {
+        Map<User, List<MemberIngredient>> members = service.addMemberToRecipe(userId, recipeId, memberIngredient);
         return ResponseEntity.ok(members);
     }
 
@@ -75,7 +77,7 @@ public class RecipesController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(ALL_RECIPES_PATH)                   /* Получить список всех рецептов (complete) */
+    @GetMapping(ALL_RECIPES_PATH)
     @ApiOperation(value = "Получение списка всех рецептов")
     public ResponseEntity<Collection<ShortRecipe>> listRecipes(
             @ApiParam(value = "Идентификатор пользователя")
@@ -83,5 +85,23 @@ public class RecipesController {
         Collection<ShortRecipe> recipes = service.provideRecipes(userId);
         return ResponseEntity.ok(recipes);
     }
+/*
+    @GetMapping(RECIPE_PATH + "/title/{recipeTitle}") // Поиск рецепта по имени
+    @ApiOperation(value = "Поиск рецепта по названию")
+    public ResponseEntity<Collection<ShortRecipe>> findRecipesByTitle(
+            @ApiParam(value = "Название рецепта")
+            @PathVariable String recipeTitle) {
+        Collection<ShortRecipe> findedRecipes = service.findRecipesByTitle(recipeTitle);
+        return ResponseEntity.ok(findedRecipes);
+    }
 
+    @GetMapping(RECIPE_PATH + "/ingredient/{recipeIngredient}") // Поиск рецепта по ингредиенту
+    @ApiOperation(value = "Поиск рецепта по ингредиенту")
+    public ResponseEntity<Collection<ShortRecipe>> findRecipesByIngredient(
+            @ApiParam(value = "Название иингредиента")
+            @PathVariable String recipeIngredient) {
+        Collection<ShortRecipe> findedRecipes = service.findRecipesByTitle(recipeIngredient);
+        return ResponseEntity.ok(findedRecipes);
+    }
+    */
 }

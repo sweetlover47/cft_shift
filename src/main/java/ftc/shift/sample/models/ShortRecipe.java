@@ -13,12 +13,12 @@ public class ShortRecipe {
     protected String description;
 
     @ApiModelProperty(value = "Статус рецепта", required = true)
-    protected int status;
+    protected String status;
 
     public ShortRecipe() {
     }
 
-    public ShortRecipe(String id, String title, String description, int status) {
+    public ShortRecipe(String id, String title, String description, String status) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -49,8 +49,8 @@ public class ShortRecipe {
         this.description = description;
     }
 
-    public int getStatus() { return status; }
+    public String getStatus() { return status; }
 
-    public void setStatus(int status) { this.status = status; }
+    public void setStatus(String status) { this.status = status; }
 
 }

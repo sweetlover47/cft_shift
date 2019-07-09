@@ -7,17 +7,18 @@ public class Ingredient {
     private String name;
 
     @ApiModelProperty(value = "Имеется", required = true)
-    private Integer collected;
+    private String countHave;
 
     @ApiModelProperty(value = "Необходимо", required = true)
-    private Integer required;
+    private String countNeed;
 
-    public Ingredient() {}
+    public Ingredient() {
+    }
 
-    public Ingredient(String name, Integer collected, Integer required) {
+    public Ingredient(String name, String countHave, String countNeed) {
         this.name = name;
-        this.collected = collected;
-        this.required = required;
+        this.countHave = countHave;
+        this.countNeed = countNeed;
     }
 
     public String getName() {
@@ -28,19 +29,19 @@ public class Ingredient {
         this.name = name;
     }
 
-    public Integer getCollected() {
-        return collected;
+    public String getCountHave() {
+        return countHave;
     }
 
-    public void setCollected(Integer collected) {
-        this.collected = collected;
+    public void setCountHave(String countHave) {
+        this.countHave = countHave;
     }
 
-    public Integer getRequired() {
-        return required;
+    public String getCountNeed() {
+        return countNeed;
     }
 
-    public void setRequired(Integer required) {
-        this.required = required;
+    public void setCountNeed(String countNeed) {
+        this.countNeed = countNeed;
     }
 }

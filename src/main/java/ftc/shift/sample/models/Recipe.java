@@ -1,6 +1,5 @@
 package ftc.shift.sample.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
@@ -10,22 +9,23 @@ public class Recipe extends ShortRecipe {
     @ApiModelProperty(value = "Телефон создателя", required = true)
     private User creator;
 
- /*   @ApiModelProperty(value = "Ингредиенты рецепта", required = true)
-    private List<String> ingredients;
-*/
+    @ApiModelProperty(value = "Ингредиенты рецепта", required = true)
+    private List<Ingredient> ingredients;
+
     @ApiModelProperty(value = "Участники рецепта", required = true)
-    private List<User> members;
+    // private List<User> members;
+    private Map<User, List<MemberIngredient>> members;
 
     public Recipe() {
     }
 
-    public Recipe(String id, String title, User creator, String description, int status,/* List<String> ingredients,*/ List<User> members) {
+    public Recipe(String id, String title, User creator, String description, String status, List<Ingredient> ingredients, Map<User, List<MemberIngredient>> members) {
         this.id = id;
         this.title = title;
         this.creator = creator;
         this.description = description;
         this.status = status;
-       /* this.ingredients = ingredients;*/
+        this.ingredients = ingredients;
         this.members = members;
     }
 
@@ -60,24 +60,28 @@ public class Recipe extends ShortRecipe {
     public void setDescription(String description) {
         this.description = description;
     }
-/*
-    public List<String> getIngredients() {
+
+    public List<Ingredient> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(List<String> ingredients) {
+    public void setIngredients(List<Ingredient> ingredients) {
         this.ingredients = ingredients;
     }
-*/
-    public int getStatus() { return status; }
 
-    public void setStatus(int status) { this.status = status; }
+    public String getStatus() {
+        return status;
+    }
 
-    public List<User> getMembers() {
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Map<User, List<MemberIngredient>> getMembers() {
         return members;
     }
 
-    public void setMembers(List<User> members) {
+    public void setMembers(Map<User, List<MemberIngredient>> members) {
         this.members = members;
     }
 }

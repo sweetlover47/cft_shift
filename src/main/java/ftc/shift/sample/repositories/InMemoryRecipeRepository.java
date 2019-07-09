@@ -1,14 +1,12 @@
 package ftc.shift.sample.repositories;
 
 import ftc.shift.sample.exception.NotFoundException;
-import ftc.shift.sample.models.Recipe;
-import ftc.shift.sample.models.ShortRecipe;
-import ftc.shift.sample.models.User;
+import ftc.shift.sample.models.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -20,31 +18,24 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     /**
      * Ключ - имя пользователя, значение - все книги, которые есть у пользователя
      */
-    private Map<User, Map<String, Recipe>> bookCache = new HashMap<>();
+    private Map<User, Map<String, Recipe>> recipeData = new HashMap<>();
     private Map<String, String> recipeCreatorMap = new HashMap<>();
-    private static Integer countRecipes = 1;
+    private static AtomicInteger countRecipes = new AtomicInteger(0);
 
-    public InMemoryRecipeRepository() {   /* У каждого пользователя есть список его рецептов. У каждого рецепта есть id ( первое значение в HashMap ) и сам рецепт ( массив строк ) */
-        // Заполним репозиторий тестовыми данными
-        // В тестовых данных существует всего 3 пользователя: UserA / UserB / UserC
-
-        bookCache.put(new User("User1", "89990112554"), new HashMap<>());
-        /*Recipe recipe = new Recipe("1", "Борщ", "UserA", "Великолепный и вкусный суп", 1, *//*new ArrayList<String>(),*//* new ArrayList<>());
+    public InMemoryRecipeRepository() {
+        /* У каждого пользователя есть список его рецептов. У каждого рецепта есть id ( первое значение в HashMap ) и сам рецепт ( массив строк ) */
+        recipeData.put(new User("Петя", "1"), new HashMap<>());
+        /*Recipe recipe = new Recipe("1", "Борщ", "UserA", "Великолепный и вкусный суп", 1, new ArrayList<String>(), new ArrayList<>());
         this.createRecipe("User1", recipe);*/
-        bookCache.put(new User("User2", "84561112545"), new HashMap<>());
-        bookCache.put(new User("User3", "89083271800"), new HashMap<>());
+        recipeData.put(new User("Вася", "2"), new HashMap<>());
+        recipeData.put(new User("Катя", "3"), new HashMap<>());
     }
 
+
     @Override
-    public Recipe fetchRecipe(String userId, String bookId) {   /* Получить конкретный рецепт (complete) */
-        Set<User> users = bookCache.keySet();
-        Set<User> filtered = users.stream().filter(us -> us.getUserId().equals(userId)).collect(Collectors.toSet());
-        if (filtered.size() != 1) {
-            // Пользователь не найден
-            throw new NotFoundException();
-        }
-        User user = (User) filtered.toArray()[0];
-        Map<String, Recipe> userBooks = bookCache.get(user);
+    public Recipe fetchRecipe(String userId, String bookId) {
+        User user = fetchUserByUserId(userId);
+        Map<String, Recipe> userBooks = recipeData.get(user);
 
         if (!userBooks.containsKey(bookId)) {
             // У пользователя не найдена книга
@@ -54,64 +45,61 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     }
 
     @Override
-    public List<String> addMember(String userId, String recipeId) {
-                                                                            /* Получить User по userId */
-        Set<User> users = bookCache.keySet();
-        Set<User> filtered = users.stream().filter(us -> us.getUserId().equals(userId)).collect(Collectors.toSet());
-        if (filtered.size() != 1) {
-            // Пользователь не найден
-            throw new NotFoundException();
-        }
-        User user = (User) filtered.toArray()[0];
+    public Map<User, List<MemberIngredient>> addMember(String userId, String recipeId, MemberIngredient memberIngredient) {
+        User user = fetchUserByUserId(userId);
         String creatorId = getCreatorId(recipeId);
         Recipe recipe = fetchRecipe(creatorId, recipeId);                   /* Нужно найти тот рецепт, на котором мы сейчас находимся */
-        List<User> memberList = recipe.getMembers();
-        if (!memberList.contains(user))
-            memberList.add(user);
+        Map<User, List<MemberIngredient>> memberList = recipe.getMembers();
+        if (!memberList.containsKey(user)) {
+            List<MemberIngredient> ingredientList = new ArrayList<>();
+            ingredientList.add(memberIngredient);
+            memberList.put(user, ingredientList);
+        }
+        else if (memberList.containsKey(user) && !memberList.get(user).contains(memberIngredient)) {
+            List<MemberIngredient> ingredientList = new ArrayList<>();
+            ingredientList.add(memberIngredient);
+            memberList.put(user, ingredientList);
+        }
         recipe.setMembers(memberList);
-        ArrayList<String> ar = new ArrayList<>();
-        for (User elem : memberList)
-            ar.add(elem.getUserId());
+        Map<User, List<MemberIngredient>> ar = new HashMap<>();
+        for (User elem : memberList.keySet())
+            ar.put(elem, memberList.get(elem));
+        //Добавить список ингредиентов
         return ar;
     }
 
     @Override
     public void deleteRecipe(String userId, String recipeId) {
-        if (!bookCache.containsKey(userId)) {
+        if (!recipeData.containsKey(userId)) {
             // Пользователь не найден
             throw new NotFoundException();
         }
 
-        Map<String, Recipe> userBooks = bookCache.get(userId);
+        Map<String, Recipe> userBooks = recipeData.get(userId);
 
         if (!userBooks.containsKey(recipeId)) {
             // У пользователя не найдена книга
             throw new NotFoundException();
         }
         /* countRecipes - 1 */
-        bookCache.remove(recipeId);
+        recipeData.remove(recipeId);
     }
 
     @Override
     public Recipe createRecipe(String userId, Recipe recipe) {  /* Добавление нового рецепта (complete) */
-        Set<User> users = bookCache.keySet();
-        Set<User> filtered = users.stream().filter(us -> us.getUserId().equals(userId)).collect(Collectors.toSet());
-        if (filtered.size() != 1) {
-            // Пользователь не найден
-            throw new NotFoundException();
-        }
-        User user = (User) filtered.toArray()[0];
-        Map<String, Recipe> userBooks = bookCache.get(user);
-        recipe.setMembers(new LinkedList<>());
+        User user = fetchUserByUserId(userId);
+        Map<String, Recipe> userBooks = recipeData.get(user);
+        recipe.setMembers(new HashMap<>());
+        recipe.setId(Integer.toString(countRecipes.getAndIncrement()));
         userBooks.put(recipe.getId(), recipe);
         recipeCreatorMap.put(recipe.getId(), userId);
         return recipe;
     }
 
     @Override
-    public Collection<ShortRecipe> getAllRecipes(String userId) {
+    public Collection<ShortRecipe> getAllShortRecipes() {
         List<ShortRecipe> list = new LinkedList<>();
-        for (Map.Entry<User, Map<String, Recipe>> entry : bookCache.entrySet()) {
+        for (Map.Entry<User, Map<String, Recipe>> entry : recipeData.entrySet()) {
             for (ShortRecipe r : entry.getValue().values()) {
                 ShortRecipe sr = new ShortRecipe(r.getId(), r.getTitle(), r.getDescription(), r.getStatus());
                 list.add(sr);
@@ -121,29 +109,28 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     }
 
     @Override
+    public Collection<Recipe> getAllRecipes() {
+        List<Recipe> list = new LinkedList<>();
+        for (Map.Entry<User, Map<String, Recipe>> entry : recipeData.entrySet()) {
+            for (Recipe r : entry.getValue().values()) {
+                list.add(r);
+            }
+        }
+        return list;
+    }
+
+//----------------------------------------------------------------------------------------
+
+    @Override
     public String getCreatorId(String recipeId) {
         return recipeCreatorMap.get(recipeId);
     }
 
-
-
-    /*
-    @Override
-    public Recipe updateRecipe(String userId, String recipeId, Recipe recipe) {
-        if (!bookCache.containsKey(userId)) {
-            // Пользователь не найден
-            throw new NotFoundException();
-        }
-
-        Map<String, Recipe> userBooks = bookCache.get(userId);
-
-        if (!userBooks.containsKey(recipeId)) {
-            // У пользователя не найдена книга
-            throw new NotFoundException();
-        }
-
-        recipe.setId(recipeId);
-        userBooks.put(recipeId, recipe);
-        return recipe;
-    }*/
+    private User fetchUserByUserId(String userId) {
+        Set<User> users = recipeData.keySet();
+        return users.stream()
+                .filter(us -> us.getUserId().equals(userId))
+                .findAny()
+                .orElseThrow(NotFoundException::new);
+    }
 }
