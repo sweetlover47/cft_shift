@@ -11,9 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Все аннотации, начинающиеся с @Api нужны только для построения <a href="http://localhost:8081/swagger-ui.html#/">swagger-документации</a>
@@ -55,15 +53,15 @@ public class RecipesController {
 
     @PutMapping(RECIPE_PATH + "/{recipeId}")   /* Добавление участника в список */
     @ApiOperation(value = "Добавление нового участника в список участников конкретного рецепта")
-    public ResponseEntity<Map<User, List<MemberIngredient>>> addMember(
+    public ResponseEntity<List<MemberIngredients>> addMember(
             @ApiParam(value = "Идентификатор пользователя")
             @RequestHeader("userId") String userId,
             @ApiParam(value = "Идентификатор рецепта")
             @PathVariable String recipeId,
-            @ApiParam(value = "Добавленный ингредиент")
-            @RequestBody MemberIngredient memberIngredient) {
-        Map<User, List<MemberIngredient>> members = service.addMemberToRecipe(userId, recipeId, memberIngredient);
-        return ResponseEntity.ok(members);
+            @ApiParam(value = "Добавленные ингредиенты")
+            @RequestBody MemberIngredients memberIngredients) {
+        List<MemberIngredients> resultMemberIngredients = service.addMemberToRecipe(userId, recipeId, memberIngredients);
+        return ResponseEntity.ok(resultMemberIngredients);
     }
 
     @DeleteMapping(RECIPE_PATH + "/{recipeId}")  /* Удалить рецепт */

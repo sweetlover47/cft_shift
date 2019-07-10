@@ -11,17 +11,13 @@ public class User {
     @ApiModelProperty(value = "Уникальный идентификатор пользователя", required = true)
     private String userId;
 
-  /*  @ApiModelProperty(value = "Список рецептов, созданных пользователем", required = true)
-    private Collection<Recipe> userRecipes;
-*/
     //private Fridge fridge;
 
     public User() {}
 
-    public User(String name, String userId/*, Collection<Recipe> userRecipes*/) {
+    public User(String name, String userId) {
         this.name = name;
         this.userId = userId;
-       // this.userRecipes = userRecipes;
     }
 
     public String getName() {
@@ -39,15 +35,7 @@ public class User {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-/*
-    public Collection<Recipe> getUserRecipes() {
-        return userRecipes;
-    }
 
-    public void setUserRecipes(Collection<Recipe> userRecipes) {
-        this.userRecipes = userRecipes;
-    }
-*/
     @Override
     public boolean equals (Object object) {
         boolean result = false;
@@ -55,7 +43,7 @@ public class User {
             result = false;
         } else {
             User user = (User) object;
-            if (this.userId == user.getUserId()) {
+            if (this.userId.equals(user.getUserId())) {
                 result = true;
             }
         }

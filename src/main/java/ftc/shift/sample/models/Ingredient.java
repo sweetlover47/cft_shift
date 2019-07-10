@@ -44,4 +44,18 @@ public class Ingredient {
     public void setCountNeed(String countNeed) {
         this.countNeed = countNeed;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean result = false;
+        if (obj == null || obj.getClass() != getClass()) {
+            result = false;
+        } else {
+            Ingredient ingredient = (Ingredient) obj;
+            if (this.getName().equals(ingredient.getName())) {
+                result = true;
+            }
+        }
+        return result;
+    }
 }

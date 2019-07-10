@@ -3,7 +3,6 @@ package ftc.shift.sample.models;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
-import java.util.Map;
 
 public class Recipe extends ShortRecipe {
     @ApiModelProperty(value = "Телефон создателя", required = true)
@@ -14,12 +13,12 @@ public class Recipe extends ShortRecipe {
 
     @ApiModelProperty(value = "Участники рецепта", required = true)
     // private List<User> members;
-    private Map<User, List<MemberIngredient>> members;
+    private List<MemberIngredients> members;
 
     public Recipe() {
     }
 
-    public Recipe(String id, String title, User creator, String description, String status, List<Ingredient> ingredients, Map<User, List<MemberIngredient>> members) {
+    public Recipe(String id, String title, User creator, String description, String status, List<Ingredient> ingredients, List<MemberIngredients> members) {
         this.id = id;
         this.title = title;
         this.creator = creator;
@@ -77,11 +76,11 @@ public class Recipe extends ShortRecipe {
         this.status = status;
     }
 
-    public Map<User, List<MemberIngredient>> getMembers() {
+    public List<MemberIngredients> getMembers() {
         return members;
     }
 
-    public void setMembers(Map<User, List<MemberIngredient>> members) {
+    public void setMembers(List<MemberIngredients> members) {
         this.members = members;
     }
 }

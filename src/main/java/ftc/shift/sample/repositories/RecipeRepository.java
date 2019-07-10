@@ -4,7 +4,6 @@ import ftc.shift.sample.models.*;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Интерфейс для получения данных по книгам
@@ -23,5 +22,9 @@ public interface RecipeRepository {
 
   String getCreatorId(String recipeId);
 
-  Map<User, List<MemberIngredient>> addMember(String userId, String recipeId, MemberIngredient memberIngredient);
+
+  /**
+   * опасно для жизни
+   */
+  List<MemberIngredients> addMember(String userId, String recipeId, MemberIngredients addedIngredients);
 }

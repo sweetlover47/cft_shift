@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class RecipeService {
@@ -40,8 +39,8 @@ public class RecipeService {
         return recipeRepository.getCreatorId(recipeId);
     }
 
-    public Map<User, List<MemberIngredient>> addMemberToRecipe(String userId, String recipeId,MemberIngredient memberIngredient) {
-        return recipeRepository.addMember(userId, recipeId, memberIngredient);
+    public List<MemberIngredients> addMemberToRecipe(String userId, String recipeId, MemberIngredients addedIngredients) {
+        return recipeRepository.addMember(userId, recipeId, addedIngredients);
     }
 
     public List<ShortRecipe> findRecipesByTitle(String title) {
