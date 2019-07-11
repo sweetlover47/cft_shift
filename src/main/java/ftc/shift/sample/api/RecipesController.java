@@ -23,6 +23,7 @@ public class RecipesController {
 
     private static final String RECIPE_PATH = "/api/v001/recipe";
     private static final String ALL_RECIPES_PATH = "/api/v001/recipes";
+    private static final String FRIDGE_PATH = "/api/v001/fridge";
 
     @Autowired
     private RecipeService service;
@@ -83,23 +84,51 @@ public class RecipesController {
         Collection<ShortRecipe> recipes = service.provideRecipes(userId);
         return ResponseEntity.ok(recipes);
     }
-/*
-    @GetMapping(RECIPE_PATH + "/title/{recipeTitle}") // Поиск рецепта по имени
+
+    @GetMapping(RECIPE_PATH + "/find") // Поиск рецепта по имени
     @ApiOperation(value = "Поиск рецепта по названию")
     public ResponseEntity<Collection<ShortRecipe>> findRecipesByTitle(
-            @ApiParam(value = "Название рецепта")
-            @PathVariable String recipeTitle) {
-        Collection<ShortRecipe> findedRecipes = service.findRecipesByTitle(recipeTitle);
+            @ApiParam(value = "Фильтер для рецепта")
+            @PathVariable String recipeFilter) {
+        Collection<ShortRecipe> findedRecipes = service.findRecipes(recipeFilter);
         return ResponseEntity.ok(findedRecipes);
     }
 
-    @GetMapping(RECIPE_PATH + "/ingredient/{recipeIngredient}") // Поиск рецепта по ингредиенту
-    @ApiOperation(value = "Поиск рецепта по ингредиенту")
-    public ResponseEntity<Collection<ShortRecipe>> findRecipesByIngredient(
-            @ApiParam(value = "Название иингредиента")
-            @PathVariable String recipeIngredient) {
-        Collection<ShortRecipe> findedRecipes = service.findRecipesByTitle(recipeIngredient);
-        return ResponseEntity.ok(findedRecipes);
+
+    @GetMapping(FRIDGE_PATH) // Получение холодильника
+    @ApiOperation(value = "Получение холодильника пользователя")
+    public ResponseEntity<Collection<AddedIngredient>> sendFridge(
+            @ApiParam(value = "Идентификатор пользователя")
+            @RequestHeader("userId") String userId) {
+        Collection<AddedIngredient> fridge = service.getFridge(userId);
+        return ResponseEntity.ok(fridge);
     }
-    */
+
+    @PutMapping(FRIDGE_PATH + "/add") // Добавление игредиента в холодильник
+    @ApiOperation(value = " Добавление ингредиента в холодильник")
+    public ResponseEntity<Collection<AddedIngredient>> addIngredientInFridge(
+            @ApiParam(value = "Идентификатор пользователя")
+            @RequestHeader("userId") String userId,
+            @ApiParam(value = "Добавленный ингредиент")
+            @RequestBody AddedIngredient addedIngredient) {
+
+
+        Collection<AddedIngredient> fridge = service.addIngredientInFridge(userId, addedIngredient);
+        return ResponseEntity.ok(fridge);
+    }
+
+
+    @PutMapping(FRIDGE_PATH + "/del") // Удаление ингредиента из холодилника
+    @ApiOperation(value = "Удаление ингредиента из холодилника")
+    public ResponseEntity<Collection<AddedIngredient>> delIngredientFromFridge(
+            @ApiParam(value = "Идентификатор пользователя")
+            @RequestHeader("userId") String userId,
+            @ApiParam(value = "Удаляемый ингредиент")
+            @RequestBody AddedIngredient delIngredient) {
+
+
+        Collection<AddedIngredient> fridge = service.delIngredientFromFridge(userId, delIngredient);
+        return ResponseEntity.ok(fridge);
+    }
+
 }

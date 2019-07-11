@@ -27,4 +27,10 @@ public interface RecipeRepository {
    * опасно для жизни
    */
   List<MemberIngredients> addMember(String userId, String recipeId, MemberIngredients addedIngredients);
+
+
+  //---------------------
+  List<AddedIngredient> getUserFridge(String userId);
+  List<AddedIngredient> addIngredientInFridge(String userId, AddedIngredient newIng);
+  List<AddedIngredient> delIngredientFromFridge(String userId, AddedIngredient delIng);
 }

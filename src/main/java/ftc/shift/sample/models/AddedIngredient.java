@@ -34,6 +34,21 @@ public class AddedIngredient {
         this.count = count;
     }
 
+    public void addCount(String amount) {
+        int _count  = Integer.parseInt(this.count);
+        int _amount = Integer.parseInt(amount);
+
+        this.count = Integer.toString(_count + _amount);
+    }
+
+    public void subCount(String amount) {
+        int _count  = Integer.parseInt(this.count);
+        int _amount = Integer.parseInt(amount);
+
+        this.count = Integer.toString(_count - _amount);
+    }
+
+
     @Override
     public boolean equals(Object v) {
         boolean retVal = false;

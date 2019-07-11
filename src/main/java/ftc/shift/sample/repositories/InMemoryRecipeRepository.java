@@ -1,10 +1,8 @@
 package ftc.shift.sample.repositories;
 
-import ftc.shift.sample.exception.NoIngredientException;
-import ftc.shift.sample.exception.NotCreatorRecipe;
+import ftc.shift.sample.exception.NotCreatorRecipeException;
 import ftc.shift.sample.exception.NotFoundException;
 import ftc.shift.sample.models.*;
-import io.swagger.models.auth.In;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
@@ -25,21 +23,14 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     private static AtomicInteger countRecipes = new AtomicInteger(0);
 
     public InMemoryRecipeRepository() {
-        /* У каждого пользователя есть список его рецептов. У каждого рецепта есть id ( первое значение в HashMap ) и сам рецепт ( массив строк ) */
-        User user = new User("UserA", "1");
-        recipeData.put(user, new HashMap<>());
-        List<Ingredient> list = new ArrayList<>();
-        list.add(new Ingredient("onion", "0", "2"));
-        list.add(new Ingredient("onion2", "0", "4"));
-        List<AddedIngredient> addedIngredients = new ArrayList<>();
-        addedIngredients.add(new AddedIngredient("onion", "1"));
-        List<MemberIngredients> map = new ArrayList<>();
-        Recipe recipe = new Recipe("1", "qwe", user, "qweqweqwe", "wait", list, map);
-        createRecipe("1", recipe);
-        recipeData.put(new User("Вася", "2"), new HashMap<>());
-        recipeData.put(new User("Катя", "3"), new HashMap<>());
+        /* У каждого пользователя есть список его рецептов. У каждого рецепта есть id ( первое значение в HashMap ) и сам рецепт*/
+        recipeData.put(new User("Петя", "1", new ArrayList<>()), new HashMap<>());
+        recipeData.put(new User("Вася", "2", new ArrayList<>()), new HashMap<>());
+        recipeData.put(new User("Катя", "3", new ArrayList<>()), new HashMap<>());
+        recipeData.put(new User("UserA", "+79293889399", new ArrayList<>()), new HashMap<>());
+        recipeData.put(new User("UserB", "", new ArrayList<>()), new HashMap<>());
+        recipeData.put(new User("UserC", "", new ArrayList<>()), new HashMap<>());
     }
-
 
     @Override
     public Recipe fetchRecipe(String userId, String bookId) {
@@ -54,114 +45,59 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     }
 
     @Override
-    public List<MemberIngredients> addMember(String userId, String recipeId, MemberIngredients memberIngredients) {
-        User user = memberIngredients.getUser();
+    public List<MemberIngredients> addMember(String userId, String recipeId, MemberIngredients addedMemberIngredients) {
+        User user = addedMemberIngredients.getUser();
         Recipe recipe = fetchRecipe(getCreatorId(recipeId), recipeId);
-        MemberIngredients userIngredients = recipe.getMembers().stream()
+        MemberIngredients recipeMemberIngredients = recipe.getMembers().stream()
                 .filter(mi -> mi.getUser().equals(user))
                 .findAny()
                 .orElse(null);
-        if (userIngredients == null) {
+        if (recipeMemberIngredients == null) {
             List<MemberIngredients> members = recipe.getMembers();
             members.add(new MemberIngredients(user, new ArrayList<>()));
             recipe.setMembers(members);
-            userIngredients = recipe.getMembers().stream()
+            recipeMemberIngredients = recipe.getMembers().stream()
                     .filter(mi -> mi.getUser().equals(user))
                     .findAny()
                     .orElseThrow(ExceptionInInitializerError::new);
         }
-        Integer value;
         String oldValue;
-        for (AddedIngredient ai : memberIngredients.getIngredients()) {
-            boolean addedExisting = userIngredients.getIngredients() != null &&userIngredients.getIngredients().stream()
+        for (AddedIngredient ai : addedMemberIngredients.getIngredients()) {
+            boolean addedExisting = recipeMemberIngredients.getIngredients() != null &&recipeMemberIngredients.getIngredients().stream()
                     .anyMatch(ingred -> ingred.getName().equals(ai.getName()));
-            List<AddedIngredient> addedIngredientList = userIngredients.getIngredients();
+            List<AddedIngredient> recipeIngredientList = recipeMemberIngredients.getIngredients();
             if (!addedExisting) {
-                addedIngredientList.add(ai);
-                userIngredients.setIngredients(addedIngredientList);
-                oldValue = recipe.getIngredients().stream()
-                        .filter(in -> in.getName().equals(ai.getName()))
-                        .findAny()
-                        .orElseThrow(NoIngredientException::new)
-                        .getCountHave();
+                recipeIngredientList.add(ai);
+                recipeMemberIngredients.setIngredients(recipeIngredientList);
+                oldValue = "0";
             } else {
-                AddedIngredient addedIngredient = addedIngredientList.stream()
+                AddedIngredient addedIngredient = recipeIngredientList.stream()
                         .filter(addedi -> addedi.getName().equals(ai.getName()))
                         .findAny()
                         .orElseThrow(RuntimeException::new);
                 oldValue = addedIngredient.getCount();
-                value = Integer.valueOf(ai.getCount()) + Integer.valueOf(oldValue);
+                Integer value = Integer.valueOf(ai.getCount()) + Integer.valueOf(oldValue);
                 ai.setCount(Integer.toString(value));
-                addedIngredientList.remove(addedIngredient);
-                addedIngredientList.add(ai);
-                userIngredients.setIngredients(addedIngredientList);
+                recipeIngredientList.remove(addedIngredient);
+                recipeIngredientList.add(ai);
+                recipeMemberIngredients.setIngredients(recipeIngredientList);
             }
-            Ingredient ingredient = recipe.getIngredients().stream()
-                    .filter(p -> p.getName().equals(ai.getName()))
-                    .findAny()
-                    .orElseThrow(NotFoundException::new);
-            Integer addedValue = Integer.valueOf(ai.getCount()) - Integer.valueOf(oldValue);
-            value = Integer.valueOf(ingredient.getCountHave()) + addedValue;
-            ingredient.setCountHave(Integer.toString(value));
+            updateValuesRecipeIngredients(recipe, oldValue, ai);
         }
         return recipe.getMembers();
     }
-/*
-    @Override
-    public List<MemberIngredients> addMember(String userId, String recipeId, MemberIngredients memberIngredients) {
-        User user = memberIngredients.getUser();
-        String creatorId = getCreatorId(recipeId);
-        Recipe recipe = fetchRecipe(creatorId, recipeId);
-        {
-            Optional<MemberIngredients> memberList = recipe.getMembers().stream()
-                    .filter(mi -> mi.getUser().equals(user))
-                    .findAny();                 // Получаем MemberIngredients для конкретного юзера
-            if (!memberList.isPresent()) {
-                List<MemberIngredients> members = recipe.getMembers();
-                members.add(new MemberIngredients(user, memberIngredients.getIngredients()));
-                recipe.setMembers(members);
-                // сделать добавление в CountHave
-            }
-        }
-        MemberIngredients memberList = recipe.getMembers().stream()     // Сделано так, тк я хочу то же название, что и для Optional'a выше
-                .filter(us -> us.getUser().equals(user))
+
+    private void updateValuesRecipeIngredients(Recipe recipe, String oldValue, AddedIngredient ai) {
+        Integer value;
+        Ingredient ingredient = recipe.getIngredients().stream()
+                .filter(p -> p.getName().equals(ai.getName()))
                 .findAny()
                 .orElseThrow(NotFoundException::new);
-        Integer value;
-        for (AddedIngredient ai : memberIngredients.getIngredients()) { // Каждый user может добавлять несколько ингредиентов, поэтому проходимся циклом по добавленным ингредиентам
-            boolean addedExisting = memberList.getIngredients().stream()
-                    .anyMatch(us -> us.getName().equals(ai.getName()));
-            if (!addedExisting) {
-                List<AddedIngredient> ingredientList = memberList.getIngredients();
-                ingredientList.add(ai);
-                memberList.setIngredients(ingredientList);
-            } else {
-                AddedIngredient addedIngredient = memberList.getIngredients().stream()
-                        .filter(p -> p.getName().equals(ai.getName()))
-                        .findAny()
-                        .orElseThrow(NotFoundException::new);
-                String oldValue = memberList.getIngredients().stream()      // Старое значение ингредиента, добавленного ранее
-                        .filter(p -> p.getName().equals(ai.getName()))
-                        .findAny()
-                        .orElseThrow(NotFoundException::new)
-                        .getCount();
-                value = Integer.valueOf(ai.getCount()) + Integer.valueOf(oldValue);
-                ai.setCount(Integer.toString(value));
-                List<AddedIngredient> list = memberList.getIngredients();
-                list.remove(addedIngredient);
-                list.add(ai);
-                memberList.setIngredients(list);
-            }
-            Ingredient ingredient = recipe.getIngredients().stream()
-                    .filter(p -> p.getName().equals(ai.getName()))
-                    .findAny()
-                    .orElseThrow(NotFoundException::new);
-            value = Integer.valueOf(ingredient.getCountHave()) + Integer.valueOf(ai.getCount());
-            ingredient.setCountHave(Integer.toString(value));
-        }
-        return recipe.getMembers();
+        Integer addedValue = Integer.valueOf(ai.getCount())- Integer.valueOf(oldValue);
+        value = Integer.valueOf(ingredient.getCountHave()) + addedValue;
+        ingredient.setCountHave(Integer.toString(value));
     }
-*/
+
     @Override
     public void deleteRecipe(String userId, String recipeId) {
         User user = fetchUserByUserId(userId);
@@ -171,14 +107,14 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         }
         if (!userId.equals(getCreatorId(recipeId))) {
             //Пользователь не является создателем рецепта
-            throw new NotCreatorRecipe();
+            throw new NotCreatorRecipeException();
         }
         Map<String, Recipe> userRecipes = recipeData.get(user);
         if (!userRecipes.containsKey(recipeId)) {
             // У пользователя не найден рецепт
             throw new NotFoundException();
         }
-        userRecipes.remove(recipeId, userRecipes.get(user));
+        userRecipes.remove(recipeId);
         recipeData.replace(user, userRecipes);
     }
 
@@ -230,5 +166,28 @@ public class InMemoryRecipeRepository implements RecipeRepository {
                 .filter(us -> us.getUserId().equals(userId))
                 .findAny()
                 .orElseThrow(NotFoundException::new);
+    }
+
+//--------------------------------------FRIDGE---------------------------------------------
+
+
+    @Override
+    public List<AddedIngredient> getUserFridge(String userId) {
+        User u = fetchUserByUserId(userId);
+        return u.getFridge();
+    }
+
+
+    @Override
+    public List<AddedIngredient> addIngredientInFridge(String userId, AddedIngredient newIng) {
+        User u = fetchUserByUserId(userId);
+        return u.addIngredientInFridge(newIng);
+    }
+
+
+    @Override
+    public List<AddedIngredient> delIngredientFromFridge(String userId, AddedIngredient delIng) {
+        User u = fetchUserByUserId(userId);
+        return u.delIngredientInFridge(delIng);
     }
 }

@@ -43,31 +43,44 @@ public class RecipeService {
         return recipeRepository.addMember(userId, recipeId, addedIngredients);
     }
 
-    public List<ShortRecipe> findRecipesByTitle(String title) {
-        Collection<ShortRecipe> allRecipes = recipeRepository.getAllShortRecipes();
+    public List<ShortRecipe> findRecipes(String filter) {
+        Collection<Recipe> allRecipes = recipeRepository.getAllRecipes();
         List<ShortRecipe> findedRecipes = new LinkedList<>();
 
-        for (ShortRecipe recipe : allRecipes) {
+        for (Recipe recipe : allRecipes) {
             // если подстрока title присутствует в назавние рецепта, добавить в список
-            if (recipe.getTitle().lastIndexOf(title) != -1) {
+            // find in recipe name
+            if (recipe.getTitle().lastIndexOf(filter) != -1) {
                 findedRecipes.add(recipe);
+                continue;
+            }
+
+            // find in ingredients
+            List<Ingredient> ingredients = recipe.getIngredients();
+            for(Ingredient ingredient : ingredients) {
+                if(ingredient.getName().lastIndexOf(filter) != -1) {
+                    findedRecipes.add(recipe);
+                    continue;
+                }
             }
         }
 
         return findedRecipes;
     }
 
-    public List<ShortRecipe> findRecipesByIngredient(String title) {
-        Collection<Recipe> allRecipes = recipeRepository.getAllRecipes();
-        List<ShortRecipe> findedRecipes = new LinkedList<>();
 
-        // need add logic!
-        for (Recipe recipe : allRecipes) {
-
-
-            findedRecipes.add(recipe);
-        }
-
-        return findedRecipes;
+    public List<AddedIngredient> getFridge(String userId) {
+        return recipeRepository.getUserFridge(userId);
     }
+
+    public List<AddedIngredient> addIngredientInFridge(String userId, AddedIngredient newIng) {
+        return recipeRepository.addIngredientInFridge(userId, newIng);
+    }
+
+
+    public List<AddedIngredient> delIngredientFromFridge(String userId, AddedIngredient delIng) {
+        return recipeRepository.delIngredientFromFridge(userId, delIng);
+    }
+
+
 }
