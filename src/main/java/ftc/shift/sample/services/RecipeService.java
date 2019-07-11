@@ -50,16 +50,24 @@ public class RecipeService {
         for (Recipe recipe : allRecipes) {
             // если подстрока title присутствует в назавние рецепта, добавить в список
             // find in recipe name
-            if (recipe.getTitle().lastIndexOf(filter) != -1) {
-                findedRecipes.add(recipe);
+            if (recipe.getTitle().toLowerCase().lastIndexOf(filter.toLowerCase()) != -1) {
+                ShortRecipe sr = new ShortRecipe(recipe.getId(),
+                        recipe.getTitle(),
+                        (recipe.getDescription().length() > 50) ? (recipe.getDescription().substring(0, 50) + "...") : recipe.getDescription(),
+                        recipe.getStatus());
+                findedRecipes.add(sr);
                 continue;
             }
 
             // find in ingredients
             List<Ingredient> ingredients = recipe.getIngredients();
             for(Ingredient ingredient : ingredients) {
-                if(ingredient.getName().lastIndexOf(filter) != -1) {
-                    findedRecipes.add(recipe);
+                if(ingredient.getName().toLowerCase().lastIndexOf(filter.toLowerCase()) != -1) {
+                    ShortRecipe sr = new ShortRecipe(recipe.getId(),
+                            recipe.getTitle(),
+                            (recipe.getDescription().length() > 50) ? (recipe.getDescription().substring(0, 50) + "...") : recipe.getDescription(),
+                            recipe.getStatus());
+                    findedRecipes.add(sr);
                     continue;
                 }
             }
@@ -83,4 +91,8 @@ public class RecipeService {
     }
 
 
+    public void updateIngredientInFridge(String userId, AddedIngredient updatedIngredient) {
+        recipeRepository.updateIngredientInFridge(userId, updatedIngredient);
+
+    }
 }

@@ -69,7 +69,7 @@ public class User {
 
     public List<AddedIngredient> addIngredientInFridge(AddedIngredient newIngredient) {
         for (AddedIngredient ingredient : this.fridge) {
-            if (ingredient.getName() == newIngredient.getName()) {
+            if (ingredient.getName().equals(newIngredient.getName())) {
                 ingredient.addCount(newIngredient.getCount());
                 return this.fridge;
             }
@@ -81,8 +81,8 @@ public class User {
 
     public List<AddedIngredient> delIngredientInFridge(AddedIngredient delIngredient) {
         for (int i = 0; i < this.fridge.size(); i++) {
-            if (this.fridge.get(i).getName() == delIngredient.getName()) {
-                if (this.fridge.get(i).getCount() == delIngredient.getCount()) {
+            if (this.fridge.get(i).getName().equals(delIngredient.getName())) {
+                if (this.fridge.get(i).getCount().equals(delIngredient.getCount())) {
                     // delete whole ingredients from fridge
                     this.fridge.remove(i);
                     break;
@@ -95,5 +95,13 @@ public class User {
 
         }
         return this.fridge;
+    }
+
+    public void updateIngredientInFridge(AddedIngredient updatedIngredient) {
+        for (AddedIngredient ingredient : this.fridge) {
+            if (ingredient.getName().equals(updatedIngredient.getName())) {
+                ingredient.setCount(updatedIngredient.getCount());
+            }
+        }
     }
 }

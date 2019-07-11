@@ -33,4 +33,6 @@ public interface RecipeRepository {
   List<AddedIngredient> getUserFridge(String userId);
   List<AddedIngredient> addIngredientInFridge(String userId, AddedIngredient newIng);
   List<AddedIngredient> delIngredientFromFridge(String userId, AddedIngredient delIng);
+
+  void updateIngredientInFridge(String userId, AddedIngredient updatedIngredient);
 }

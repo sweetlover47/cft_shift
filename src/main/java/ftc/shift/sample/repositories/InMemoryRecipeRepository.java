@@ -52,7 +52,7 @@ public class InMemoryRecipeRepository implements RecipeRepository {
                 .filter(mi -> mi.getUser().equals(user))
                 .findAny()
                 .orElse(null);
-        if (recipeMemberIngredients == null) {
+        if (recipeMemberIngredients == null) {                              // Если пользователь еще не участник рецепта, то заводим под него место в списке участников
             List<MemberIngredients> members = recipe.getMembers();
             members.add(new MemberIngredients(user, new ArrayList<>()));
             recipe.setMembers(members);
@@ -63,14 +63,14 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         }
         String oldValue;
         for (AddedIngredient ai : addedMemberIngredients.getIngredients()) {
-            boolean addedExisting = recipeMemberIngredients.getIngredients() != null &&recipeMemberIngredients.getIngredients().stream()
+            boolean addedExisting = recipeMemberIngredients.getIngredients() != null && recipeMemberIngredients.getIngredients().stream()
                     .anyMatch(ingred -> ingred.getName().equals(ai.getName()));
             List<AddedIngredient> recipeIngredientList = recipeMemberIngredients.getIngredients();
-            if (!addedExisting) {
+            if (!addedExisting) {                                           // Пользователь еще не добавлял этот ингредиент
                 recipeIngredientList.add(ai);
                 recipeMemberIngredients.setIngredients(recipeIngredientList);
                 oldValue = "0";
-            } else {
+            } else {                                                        // Пользователь уже добавлял этот ингредиент, нужно обновить поля
                 AddedIngredient addedIngredient = recipeIngredientList.stream()
                         .filter(addedi -> addedi.getName().equals(ai.getName()))
                         .findAny()
@@ -93,7 +93,7 @@ public class InMemoryRecipeRepository implements RecipeRepository {
                 .filter(p -> p.getName().equals(ai.getName()))
                 .findAny()
                 .orElseThrow(NotFoundException::new);
-        Integer addedValue = Integer.valueOf(ai.getCount())- Integer.valueOf(oldValue);
+        Integer addedValue = Integer.valueOf(ai.getCount()) - Integer.valueOf(oldValue);
         value = Integer.valueOf(ingredient.getCountHave()) + addedValue;
         ingredient.setCountHave(Integer.toString(value));
     }
@@ -124,6 +124,8 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         Map<String, Recipe> userBooks = recipeData.get(user);
         if (recipe.getMembers() == null)
             recipe.setMembers(new ArrayList<>());
+        if (recipe.getCreator().getFridge() == null)
+            recipe.getCreator().setFridge(new ArrayList<>());
         recipe.setId(Integer.toString(countRecipes.getAndIncrement()));
         userBooks.put(recipe.getId(), recipe);
         recipeCreatorMap.put(recipe.getId(), userId);
@@ -131,11 +133,11 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     }
 
     @Override
-    public Collection<ShortRecipe> getAllShortRecipes() {
+    public List<ShortRecipe> getAllShortRecipes() {
         List<ShortRecipe> list = new LinkedList<>();
         for (Map.Entry<User, Map<String, Recipe>> entry : recipeData.entrySet()) {
-            for (ShortRecipe r : entry.getValue().values()) {
-                ShortRecipe sr = new ShortRecipe(r.getId(), r.getTitle(), r.getDescription(), r.getStatus());
+            for (Recipe r : entry.getValue().values()) {
+                ShortRecipe sr = createShortRecipeByRecipe(r);
                 list.add(sr);
             }
         }
@@ -143,7 +145,7 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     }
 
     @Override
-    public Collection<Recipe> getAllRecipes() {
+    public List<Recipe> getAllRecipes() {
         List<Recipe> list = new LinkedList<>();
         for (Map.Entry<User, Map<String, Recipe>> entry : recipeData.entrySet()) {
             for (Recipe r : entry.getValue().values()) {
@@ -168,6 +170,12 @@ public class InMemoryRecipeRepository implements RecipeRepository {
                 .orElseThrow(NotFoundException::new);
     }
 
+    public ShortRecipe createShortRecipeByRecipe(Recipe recipe) {
+        return new ShortRecipe(recipe.getId(),
+                recipe.getTitle(),
+                (recipe.getDescription().length() > 50) ? (recipe.getDescription().substring(0, 50) + "...") : recipe.getDescription(),
+                recipe.getStatus());
+    }
 //--------------------------------------FRIDGE---------------------------------------------
 
 
@@ -189,5 +197,11 @@ public class InMemoryRecipeRepository implements RecipeRepository {
     public List<AddedIngredient> delIngredientFromFridge(String userId, AddedIngredient delIng) {
         User u = fetchUserByUserId(userId);
         return u.delIngredientInFridge(delIng);
+    }
+
+    @Override
+    public void updateIngredientInFridge(String userId, AddedIngredient updatedIngredient) {
+        User user = fetchUserByUserId(userId);
+        user.updateIngredientInFridge(updatedIngredient);
     }
 }

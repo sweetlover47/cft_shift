@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.Collection;
 import java.util.List;
 
@@ -88,8 +89,8 @@ public class RecipesController {
     @GetMapping(RECIPE_PATH + "/find") // Поиск рецепта по имени
     @ApiOperation(value = "Поиск рецепта по названию")
     public ResponseEntity<Collection<ShortRecipe>> findRecipesByTitle(
-            @ApiParam(value = "Фильтер для рецепта")
-            @PathVariable String recipeFilter) {
+            @ApiParam(value = "Фильтр для рецепта")
+            @RequestParam("search") String recipeFilter) {
         Collection<ShortRecipe> findedRecipes = service.findRecipes(recipeFilter);
         return ResponseEntity.ok(findedRecipes);
     }
@@ -104,6 +105,19 @@ public class RecipesController {
         return ResponseEntity.ok(fridge);
     }
 
+    @PutMapping(FRIDGE_PATH)
+    @ApiOperation(value = "Изменение количества ингредиента в холодильнике")
+    public ResponseEntity<?> updateIngredientInFridge(
+            @ApiParam(value = "Идентификатор пользователя")
+            @RequestHeader("userId") String userId,
+            @ApiParam(value = "Добавленный ингредиент")
+            @RequestBody AddedIngredient addedIngredient) {
+        service.updateIngredientInFridge(userId, addedIngredient);
+        return ResponseEntity.ok().build();
+    }
+
+
+
     @PutMapping(FRIDGE_PATH + "/add") // Добавление игредиента в холодильник
     @ApiOperation(value = " Добавление ингредиента в холодильник")
     public ResponseEntity<Collection<AddedIngredient>> addIngredientInFridge(
@@ -111,8 +125,6 @@ public class RecipesController {
             @RequestHeader("userId") String userId,
             @ApiParam(value = "Добавленный ингредиент")
             @RequestBody AddedIngredient addedIngredient) {
-
-
         Collection<AddedIngredient> fridge = service.addIngredientInFridge(userId, addedIngredient);
         return ResponseEntity.ok(fridge);
     }
