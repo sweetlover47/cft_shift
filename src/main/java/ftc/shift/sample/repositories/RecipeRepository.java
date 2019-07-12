@@ -35,4 +35,6 @@ public interface RecipeRepository {
   List<AddedIngredient> delIngredientFromFridge(String userId, AddedIngredient delIng);
 
   void updateIngredientInFridge(String userId, AddedIngredient updatedIngredient);
+
+  void updateStatusFinally(String recipeId);
 }

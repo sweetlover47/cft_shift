@@ -95,4 +95,8 @@ public class RecipeService {
         recipeRepository.updateIngredientInFridge(userId, updatedIngredient);
 
     }
+
+    public void updateStatus(String recipeId) {
+        recipeRepository.updateStatusFinally(recipeId);
+    }
 }

@@ -66,6 +66,16 @@ public class RecipesController {
         return ResponseEntity.ok(resultMemberIngredients);
     }
 
+    @PutMapping(RECIPE_PATH + "/{recipeId}/status")
+    @ApiOperation(value = "Изменение статуса рецепта на \"Готово\"")
+    public ResponseEntity<?> updateStatus(
+            @ApiParam(value = "Идентификатор рецепта")
+            @PathVariable String recipeId ){
+        service.updateStatus(recipeId);
+        return ResponseEntity.ok().build();
+    }
+
+
     @DeleteMapping(RECIPE_PATH + "/{recipeId}")  /* Удалить рецепт */
     @ApiOperation(value = "Удаление существующего рецепта")
     public ResponseEntity<?> deleteRecipe(
@@ -95,6 +105,8 @@ public class RecipesController {
         return ResponseEntity.ok(findedRecipes);
     }
 
+
+    //-----------------------------------------------------------------------------------------------------------
 
     @GetMapping(FRIDGE_PATH) // Получение холодильника
     @ApiOperation(value = "Получение холодильника пользователя")

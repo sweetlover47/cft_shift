@@ -44,6 +44,10 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         return userBooks.get(bookId);
     }
 
+    /* Нужно добавить:
+        [-] удаление ингредиентов из холодильника участника
+        [-] проверка на переполнение (countHave > countNeed)
+     */
     @Override
     public List<MemberIngredients> addMember(String userId, String recipeId, MemberIngredients addedMemberIngredients) {
         User user = addedMemberIngredients.getUser();
@@ -67,6 +71,15 @@ public class InMemoryRecipeRepository implements RecipeRepository {
                     .anyMatch(ingred -> ingred.getName().equals(ai.getName()));
             List<AddedIngredient> recipeIngredientList = recipeMemberIngredients.getIngredients();
             if (!addedExisting) {                                           // Пользователь еще не добавлял этот ингредиент
+                Ingredient updatedIngredient = recipe.getIngredients().stream()
+                        .filter(ui -> ui.getName().equals(ai.getName()))
+                        .findAny()
+                        .orElseThrow(NotFoundException::new);
+                /*if (Integer.valueOf(updatedIngredient.getCountHave()) + Integer.valueOf(ai.getCount()) > Integer.valueOf(updatedIngredient.getCountNeed())) {
+                    Integer tmp = Integer.valueOf(updatedIngredient.getCountNeed()) - Integer.valueOf(updatedIngredient.getCountHave());
+                    ai.setCount(tmp.toString());
+                    // здесь нужно допилить, чтобы правильно вычитались продукты из холодильника
+                }*/
                 recipeIngredientList.add(ai);
                 recipeMemberIngredients.setIngredients(recipeIngredientList);
                 oldValue = "0";
@@ -83,10 +96,36 @@ public class InMemoryRecipeRepository implements RecipeRepository {
                 recipeMemberIngredients.setIngredients(recipeIngredientList);
             }
             updateValuesRecipeIngredients(recipe, oldValue, ai);
+            updateStatus(recipe);
         }
         return recipe.getMembers();
     }
 
+    /**
+     * Внутри проверяет собраны ли все ингредиенты.
+     * Если собраны, меняет статус рецепта на "Готовится",
+     * иначе ничего не делает.
+     * @param recipe    проверяемый рецепт
+     */
+    private void updateStatus(Recipe recipe) {
+        boolean allIngredients = true;
+        for (Ingredient ingredient : recipe.getIngredients()) {
+            if (!ingredient.getCountHave().equals(ingredient.getCountNeed())) {
+                allIngredients = false;
+                break;
+            }
+        }
+        if (allIngredients)
+            recipe.setStatus("Готовится");
+        return;
+    }
+
+    /**
+     * Обновляет поле countHave в рецепте recipe
+     * @param recipe модифицируемый рецепт
+     * @param oldValue старое значение поля countHave
+     * @param ai добавляемый ингредиент
+     */
     private void updateValuesRecipeIngredients(Recipe recipe, String oldValue, AddedIngredient ai) {
         Integer value;
         Ingredient ingredient = recipe.getIngredients().stream()
@@ -155,6 +194,13 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         return list;
     }
 
+
+    @Override
+    public void updateStatusFinally(String recipeId) {
+        Recipe r = fetchRecipe(getCreatorId(recipeId), recipeId);
+        r.setStatus("Завершено");
+    }
+
 //----------------------------------------------------------------------------------------
 
     @Override
@@ -204,4 +250,5 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         User user = fetchUserByUserId(userId);
         user.updateIngredientInFridge(updatedIngredient);
     }
+
 }
