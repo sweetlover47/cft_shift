@@ -30,11 +30,14 @@ public class InMemoryRecipeRepository implements RecipeRepository {
         recipeData.put(new User("UserA", "+79293889399", new ArrayList<>()), new HashMap<>());
         recipeData.put(new User("UserB", "", new ArrayList<>()), new HashMap<>());
         recipeData.put(new User("UserC", "", new ArrayList<>()), new HashMap<>());
+        recipeData.put(new User("Екатерина", "89991213554", new ArrayList<>()), new HashMap<>());
+        recipeData.put(new User("Василий", "89081334568", new ArrayList<>()), new HashMap<>());
+        recipeData.put(new User("Иван", "89987745519", new ArrayList<>()), new HashMap<>());
     }
 
     @Override
     public Recipe fetchRecipe(String userId, String bookId) {
-        User user = fetchUserByUserId(userId);
+        User user = fetchUserByUserId(getCreatorId(bookId));
         Map<String, Recipe> userBooks = recipeData.get(user);
 
         if (!userBooks.containsKey(bookId)) {
@@ -70,16 +73,20 @@ public class InMemoryRecipeRepository implements RecipeRepository {
             boolean addedExisting = recipeMemberIngredients.getIngredients() != null && recipeMemberIngredients.getIngredients().stream()
                     .anyMatch(ingred -> ingred.getName().equals(ai.getName()));
             List<AddedIngredient> recipeIngredientList = recipeMemberIngredients.getIngredients();
-            if (!addedExisting) {                                           // Пользователь еще не добавлял этот ингредиент
-                Ingredient updatedIngredient = recipe.getIngredients().stream()
-                        .filter(ui -> ui.getName().equals(ai.getName()))
-                        .findAny()
-                        .orElseThrow(NotFoundException::new);
-                /*if (Integer.valueOf(updatedIngredient.getCountHave()) + Integer.valueOf(ai.getCount()) > Integer.valueOf(updatedIngredient.getCountNeed())) {
-                    Integer tmp = Integer.valueOf(updatedIngredient.getCountNeed()) - Integer.valueOf(updatedIngredient.getCountHave());
+            Ingredient updatedIngredient = recipe.getIngredients().stream()
+                    .filter(ui -> ui.getName().equals(ai.getName()))
+                    .findAny()
+                    .orElseThrow(NotFoundException::new);
+            if (Integer.valueOf(updatedIngredient.getCountHave()) + Integer.valueOf(ai.getCount()) > Integer.valueOf(updatedIngredient.getCountNeed())) {  //если закидываем больше countNeed
+                Integer tmp = Integer.valueOf(updatedIngredient.getCountNeed()) - Integer.valueOf(updatedIngredient.getCountHave());
+                if (tmp > 0)
                     ai.setCount(tmp.toString());
-                    // здесь нужно допилить, чтобы правильно вычитались продукты из холодильника
+               /* else {
+                    recipe.getMembers().
                 }*/
+                // здесь нужно допилить, чтобы правильно вычитались продукты из холодильника
+            }
+            if (!addedExisting) {                                           // Пользователь еще не добавлял этот ингредиент
                 recipeIngredientList.add(ai);
                 recipeMemberIngredients.setIngredients(recipeIngredientList);
                 oldValue = "0";
@@ -105,7 +112,8 @@ public class InMemoryRecipeRepository implements RecipeRepository {
      * Внутри проверяет собраны ли все ингредиенты.
      * Если собраны, меняет статус рецепта на "Готовится",
      * иначе ничего не делает.
-     * @param recipe    проверяемый рецепт
+     *
+     * @param recipe проверяемый рецепт
      */
     private void updateStatus(Recipe recipe) {
         boolean allIngredients = true;
@@ -122,9 +130,10 @@ public class InMemoryRecipeRepository implements RecipeRepository {
 
     /**
      * Обновляет поле countHave в рецепте recipe
-     * @param recipe модифицируемый рецепт
+     *
+     * @param recipe   модифицируемый рецепт
      * @param oldValue старое значение поля countHave
-     * @param ai добавляемый ингредиент
+     * @param ai       добавляемый ингредиент
      */
     private void updateValuesRecipeIngredients(Recipe recipe, String oldValue, AddedIngredient ai) {
         Integer value;
@@ -159,7 +168,7 @@ public class InMemoryRecipeRepository implements RecipeRepository {
 
     @Override
     public Recipe createRecipe(String userId, Recipe recipe) {  /* Добавление нового рецепта (complete) */
-        User user = fetchUserByUserId(userId);
+        User user = fetchUserByUserId(recipe.getCreator().getUserId());
         Map<String, Recipe> userBooks = recipeData.get(user);
         if (recipe.getMembers() == null)
             recipe.setMembers(new ArrayList<>());
@@ -167,7 +176,7 @@ public class InMemoryRecipeRepository implements RecipeRepository {
             recipe.getCreator().setFridge(new ArrayList<>());
         recipe.setId(Integer.toString(countRecipes.getAndIncrement()));
         userBooks.put(recipe.getId(), recipe);
-        recipeCreatorMap.put(recipe.getId(), userId);
+        recipeCreatorMap.put(recipe.getId(), recipe.getCreator().getUserId());
         return recipe;
     }
 
